@@ -1,0 +1,64 @@
+* Program which tells people if it's going to rain or shine a lot!
+  This program will check today's weather forecast and tell you if
+  you're supposed to wear a sunblock or take an umbrella with
+  you. Very handy for people who live in the basement and don't have
+  any windows!
+
+* Requirements, assumptions, things that might go wrong:
+** Internet connection
+** Don't use proxies or VPNs
+   if you do, don't change your geoip too much - we use it to figure
+   out your location.
+** Computer configured with local timezone
+   If you're running this on a server - check if it's not configured
+   to use UTC timezone.
+** Docker (or equivalent) to build & run the image
+** openweathermap.org API key
+   store it in =apikey= file
+** Running the software at the evenings
+   Running this software at 23:59 will still look at today's weather
+   data, so you can't use this program to plan for tomorrow.
+
+
+* How to...:
+** build it?
+   #+begin_src sh
+     make build
+   #+end_src
+   Requires [[https://www.gnu.org/software/make/][GNU Make]], [[https://www.docker.com/][Docker]] and the user to be in the =docker= group
+   (or run this as root - there's little difference between being in a
+   docker group and root.)
+
+** lint the source code?
+   #+begin_src sh
+     make lint
+   #+end_src
+   Requires GNU Make, [[https://github.com/hadolint/hadolint][hadolint]], [[https://pylint.org/][pylint]], [[https://www.python.org/][python3.9]] and [[http://mypy-lang.org/][mypy]].
+
+** test whether it works?
+   #+begin_src sh
+     make test
+   #+end_src
+   Requires GNU make and Docker.
+
+** Generate an API key and make the program use it?
+   1. Sign up on https://home.openweathermap.org/users/sign_up
+   2. Copy the API key from https://home.openweathermap.org/api_keys
+   3. Save it in apikey file like that:
+      #+begin_src sh
+        API_KEY=435897efdsfwe8732j98fyq90eqwu0e4
+      #+end_src
+   4. API key will be passed as an environmental variable to the
+      running container - you won't leak it on accidental =docker
+      push=.
+** Run with my own command line parameters?
+   You can either install dependencies (=python3.9=, =requests=) and
+   run it with
+   #+begin_src sh
+     API_KEY=XXX python3.9 weather.py [-h] --weather {shine,rain}
+   #+end_src
+   or run it in docker containers:
+   #+begin_src sh
+     make build
+     docker run --env-file apikey --rm -t weather:latest [-h] --weather {shine,rain}
+   #+end_src
